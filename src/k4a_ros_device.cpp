@@ -38,6 +38,7 @@ K4AROSDevice::K4AROSDevice()
   : Node("k4a_ros_device_node"),
     k4a_device_(nullptr),
     k4a_playback_handle_(nullptr),
+    qos_(1),
 // clang-format off
 #if defined(K4A_BODY_TRACKING)
     k4abt_tracker_(nullptr),
@@ -236,6 +237,11 @@ K4AROSDevice::K4AROSDevice()
              version_info.depth_sensor.iteration);
   }
 
+
+  qos_.history(RMW_QOS_POLICY_HISTORY_KEEP_LAST);
+  qos_.reliability(RMW_QOS_POLICY_RELIABILITY_BEST_EFFORT);
+  qos_.durability(RMW_QOS_POLICY_DURABILITY_VOLATILE);
+
   // Register our topics
   if (params_.color_format == "jpeg")
   {
@@ -247,23 +253,23 @@ K4AROSDevice::K4AROSDevice()
   }
   else if (params_.color_format == "bgra")
   {
-    rgb_raw_publisher_ = image_transport_->advertise("rgb/image_raw", 1, true);
+    rgb_raw_publisher_ = image_transport_->advertise("rgb/image_raw", qos_.get_rmw_qos_profile(), true);
   }
   rgb_raw_camerainfo_publisher_ = this->create_publisher<CameraInfo>("rgb/camera_info", 1);
 
-  depth_raw_publisher_ = image_transport_->advertise("depth/image_raw", 1, true);
+  depth_raw_publisher_ = image_transport_->advertise("depth/image_raw", qos_.get_rmw_qos_profile(), true);
   depth_raw_camerainfo_publisher_ = this->create_publisher<CameraInfo>("depth/camera_info", 1);
 
-  depth_raw_publisher_ = image_transport_->advertise(depth_raw_topic, 1, true);
+  depth_raw_publisher_ = image_transport_->advertise(depth_raw_topic, qos_.get_rmw_qos_profile(), true);
   depth_raw_camerainfo_publisher_ = this->create_publisher<CameraInfo>("depth/camera_info", 1);
 
-  depth_rect_publisher_ = image_transport_->advertise(depth_rect_topic, 1, true);
+  depth_rect_publisher_ = image_transport_->advertise(depth_rect_topic, qos_.get_rmw_qos_profile(), true);
   depth_rect_camerainfo_publisher_ = this->create_publisher<CameraInfo>("depth_to_rgb/camera_info", 1);
 
-  rgb_rect_publisher_ = image_transport_->advertise("rgb_to_depth/image_raw", 1, true);
+  rgb_rect_publisher_ = image_transport_->advertise("rgb_to_depth/image_raw", qos_.get_rmw_qos_profile(), true);
   rgb_rect_camerainfo_publisher_ = this->create_publisher<CameraInfo>("rgb_to_depth/camera_info", 1);
 
-  ir_raw_publisher_ = image_transport_->advertise("ir/image_raw", 1, true);
+  ir_raw_publisher_ = image_transport_->advertise("ir/image_raw", qos_.get_rmw_qos_profile(), true);
   ir_raw_camerainfo_publisher_ = this->create_publisher<CameraInfo>("ir/camera_info", 1);
 
   imu_orientation_publisher_ = this->create_publisher<Imu>("imu", 200);
