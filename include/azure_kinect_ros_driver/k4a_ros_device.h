@@ -114,6 +114,7 @@ class K4AROSDevice : public rclcpp::Node
 
   void printTimestampDebugMessage(const std::string& name, const rclcpp::Time& timestamp);
 
+  rclcpp::QoS qos_;
 
   image_transport::Publisher rgb_raw_publisher_;
   rclcpp::Publisher<sensor_msgs::msg::CompressedImage>::SharedPtr rgb_jpeg_publisher_;
